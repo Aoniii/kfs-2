@@ -2,14 +2,24 @@
 # Build an i686-elf GCC cross-compiler (OSDev Bare Bones style).
 # Installs to $HOME/opt/cross by default.
 #
-# Usage:
+# Run as your NORMAL user, NOT root (it installs into a user prefix, and
+# building GCC as root is bad practice). Install the host build tools first
+# with install-deps.sh:
+#   sudo ./scripts/install-deps.sh
 #   ./scripts/build-i686-elf.sh
-#   PREFIX=/opt/cross ./scripts/build-i686-elf.sh
+#   PREFIX=/opt/cross ./scripts/build-i686-elf.sh   # custom prefix
 #
-# After install, add to ~/.zshrc:
+# After install, add the prefix to your shell rc (~/.bashrc, ~/.zshrc, ...):
 #   export PATH="$HOME/opt/cross/bin:$PATH"
 
 set -euo pipefail
+
+log() { printf '\n==> %s\n' "$*"; }
+warn() { printf 'warning: %s\n' "$*" >&2; }
+die() {
+    printf 'error: %s\n' "$*" >&2
+    exit 1
+}
 
 PREFIX="${PREFIX:-$HOME/opt/cross}"
 TARGET="${TARGET:-i686-elf}"
@@ -28,167 +38,177 @@ GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERSION}/${GCC_TAR}"
 export PATH="${PREFIX}/bin:${PATH}"
 export PREFIX TARGET
 
-log() { printf '\n==> %s\n' "$*"; }
-die() { printf 'error: %s\n' "$*" >&2; exit 1; }
+# --- Must NOT be root ------------------------------------------------------
+# This installs into a user prefix ($PREFIX) and building GCC as root is
+# discouraged. Use install-deps.sh (with sudo) for the *system* packages,
+# but run THIS script as your normal user.
+if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+    die "do not run this script as root — it installs into a user prefix:
+       $PREFIX
+     Run it as your normal user. If the prefix needs root to be created,
+     create and own it first, then rerun without sudo:
+       sudo mkdir -p '$PREFIX' && sudo chown \"\$(id -un)\" '$PREFIX'"
+fi
 
 need_cmd() {
-	command -v "$1" >/dev/null 2>&1 || die "missing command: $1"
+    command -v "$1" >/dev/null 2>&1 ||
+        die "missing command: $1 — install host tools first: sudo ./scripts/install-deps.sh"
 }
 
 check_host_deps() {
-	log "Checking host tools"
-	local cmd
-	# makeinfo/texinfo is optional: docs are stubbed if missing.
-	# gmp/mpfr/mpc come from gcc's download_prerequisites (no -dev packages needed).
-	for cmd in make gcc g++ bison flex curl tar xz; do
-		need_cmd "$cmd"
-	done
+    log "Checking host tools"
+    local cmd
+    # makeinfo/texinfo is optional: docs are stubbed if missing.
+    # gmp/mpfr/mpc come from gcc's download_prerequisites (no -dev packages needed).
+    for cmd in make gcc g++ bison flex curl tar xz; do
+        need_cmd "$cmd"
+    done
 
-	if ! command -v makeinfo >/dev/null 2>&1; then
-		log "makeinfo not found — disabling documentation build"
-		export MAKEINFO=true
-	fi
+    if ! command -v makeinfo >/dev/null 2>&1; then
+        warn "makeinfo not found — disabling documentation build"
+        export MAKEINFO=true
+    fi
 }
 
 download() {
-	local url="$1"
-	local out="$2"
-	if [[ -f "$out" ]]; then
-		log "Already downloaded: $out"
-		return
-	fi
-	log "Downloading $url"
-	curl -L --fail --progress-bar -o "$out" "$url"
+    local url="$1"
+    local out="$2"
+    if [[ -f "$out" ]]; then
+        log "Already downloaded: $out"
+        return
+    fi
+    log "Downloading $url"
+    curl -L --fail --progress-bar -o "$out" "$url"
 }
 
 extract() {
-	local tarfile="$1"
-	local destdir="$2"
-	if [[ -d "$destdir" ]]; then
-		log "Already extracted: $destdir"
-		return
-	fi
-	log "Extracting $tarfile"
-	tar -xf "$tarfile" -C "$(dirname "$destdir")"
+    local tarfile="$1"
+    local destdir="$2"
+    if [[ -d "$destdir" ]]; then
+        log "Already extracted: $destdir"
+        return
+    fi
+    log "Extracting $tarfile"
+    tar -xf "$tarfile" -C "$(dirname "$destdir")"
 }
 
 build_binutils() {
-	local src="$SRC_DIR/binutils-${BINUTILS_VERSION}"
-	local build="$SRC_DIR/build-binutils"
+    local src="$SRC_DIR/binutils-${BINUTILS_VERSION}"
+    local build="$SRC_DIR/build-binutils"
 
-	if [[ -x "${PREFIX}/bin/${TARGET}-ld" ]]; then
-		log "Binutils already installed (${TARGET}-ld found), skipping"
-		return
-	fi
+    if [[ -x "${PREFIX}/bin/${TARGET}-ld" ]]; then
+        log "Binutils already installed (${TARGET}-ld found), skipping"
+        return
+    fi
 
-	rm -rf "$build"
-	mkdir -p "$build"
-	cd "$build"
+    rm -rf "$build"
+    mkdir -p "$build"
+    cd "$build"
 
-	log "Configuring binutils ${BINUTILS_VERSION}"
-	"$src/configure" \
-		--target="$TARGET" \
-		--prefix="$PREFIX" \
-		--with-sysroot \
-		--disable-nls \
-		--disable-werror \
-		MAKEINFO="${MAKEINFO:-makeinfo}"
+    log "Configuring binutils ${BINUTILS_VERSION}"
+    "$src/configure" \
+        --target="$TARGET" \
+        --prefix="$PREFIX" \
+        --with-sysroot \
+        --disable-nls \
+        --disable-werror \
+        MAKEINFO="${MAKEINFO:-makeinfo}"
 
-	log "Building binutils (-j${JOBS})"
-	make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}"
-	make install MAKEINFO="${MAKEINFO:-makeinfo}"
+    log "Building binutils (-j${JOBS})"
+    make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}"
+    make install MAKEINFO="${MAKEINFO:-makeinfo}"
 }
 
 build_gcc() {
-	local src="$SRC_DIR/gcc-${GCC_VERSION}"
-	local build="$SRC_DIR/build-gcc"
+    local src="$SRC_DIR/gcc-${GCC_VERSION}"
+    local build="$SRC_DIR/build-gcc"
 
-	if [[ -x "${PREFIX}/bin/${TARGET}-gcc" ]]; then
-		log "GCC already installed (${TARGET}-gcc found), skipping"
-		return
-	fi
+    if [[ -x "${PREFIX}/bin/${TARGET}-gcc" ]]; then
+        log "GCC already installed (${TARGET}-gcc found), skipping"
+        return
+    fi
 
-	# Download GCC prerequisites (gmp/mpfr/mpc) into the source tree.
-	if [[ ! -d "$src/gmp" && ! -d "$src/mpfr" ]]; then
-		log "Fetching GCC prerequisites (gmp/mpfr/mpc)"
-		cd "$src"
-		./contrib/download_prerequisites
-	fi
+    # Download GCC prerequisites (gmp/mpfr/mpc) into the source tree.
+    if [[ ! -d "$src/gmp" && ! -d "$src/mpfr" ]]; then
+        log "Fetching GCC prerequisites (gmp/mpfr/mpc)"
+        cd "$src"
+        ./contrib/download_prerequisites
+    fi
 
-	rm -rf "$build"
-	mkdir -p "$build"
-	cd "$build"
+    rm -rf "$build"
+    mkdir -p "$build"
+    cd "$build"
 
-	log "Configuring gcc ${GCC_VERSION}"
-	"$src/configure" \
-		--target="$TARGET" \
-		--prefix="$PREFIX" \
-		--disable-nls \
-		--enable-languages=c,c++ \
-		--without-headers \
-		--disable-hosted-libstdcxx \
-		--disable-shared \
-		--disable-threads \
-		--disable-tls \
-		--disable-libssp \
-		--disable-libgomp \
-		--disable-libquadmath \
-		--disable-libatomic \
-		MAKEINFO="${MAKEINFO:-makeinfo}"
+    log "Configuring gcc ${GCC_VERSION}"
+    "$src/configure" \
+        --target="$TARGET" \
+        --prefix="$PREFIX" \
+        --disable-nls \
+        --enable-languages=c,c++ \
+        --without-headers \
+        --disable-hosted-libstdcxx \
+        --disable-shared \
+        --disable-threads \
+        --disable-tls \
+        --disable-libssp \
+        --disable-libgomp \
+        --disable-libquadmath \
+        --disable-libatomic \
+        MAKEINFO="${MAKEINFO:-makeinfo}"
 
-	log "Building gcc (-j${JOBS}) — this takes a while"
-	make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}" all-gcc
-	make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}" all-target-libgcc
-	make install-gcc MAKEINFO="${MAKEINFO:-makeinfo}"
-	make install-target-libgcc MAKEINFO="${MAKEINFO:-makeinfo}"
+    log "Building gcc (-j${JOBS}) — this takes a while"
+    make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}" all-gcc
+    make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}" all-target-libgcc
+    make install-gcc MAKEINFO="${MAKEINFO:-makeinfo}"
+    make install-target-libgcc MAKEINFO="${MAKEINFO:-makeinfo}"
 }
 
 verify() {
-	log "Verifying toolchain"
-	need_cmd "${TARGET}-gcc"
-	need_cmd "${TARGET}-ld"
-	need_cmd "${TARGET}-as"
+    log "Verifying toolchain"
+    need_cmd "${TARGET}-gcc"
+    need_cmd "${TARGET}-ld"
+    need_cmd "${TARGET}-as"
 
-	"${TARGET}-gcc" --version
-	"${TARGET}-ld" --version | head -n1
+    "${TARGET}-gcc" --version
+    "${TARGET}-ld" --version | head -n1
 
-	# Sanity: produce a freestanding object, not a Linux binary.
-	local tmp
-	tmp="$(mktemp -d)"
-	cat >"$tmp/test.c" <<'EOF'
+    # Sanity: produce a freestanding object, not a Linux binary.
+    local tmp
+    tmp="$(mktemp -d)"
+    cat >"$tmp/test.c" <<'EOF'
 void _start(void) {}
 EOF
-	"${TARGET}-gcc" -ffreestanding -c "$tmp/test.c" -o "$tmp/test.o"
-	file "$tmp/test.o"
-	rm -rf "$tmp"
+    "${TARGET}-gcc" -ffreestanding -c "$tmp/test.c" -o "$tmp/test.o"
+    file "$tmp/test.o"
+    rm -rf "$tmp"
 
-	log "OK — toolchain ready in ${PREFIX}"
+    log "OK — toolchain ready in ${PREFIX}"
 }
 
 main() {
-	log "i686-elf cross-compiler build"
-	echo "PREFIX=${PREFIX}"
-	echo "TARGET=${TARGET}"
-	echo "BINUTILS=${BINUTILS_VERSION}"
-	echo "GCC=${GCC_VERSION}"
-	echo "SRC_DIR=${SRC_DIR}"
-	echo "JOBS=${JOBS}"
+    log "i686-elf cross-compiler build"
+    echo "PREFIX=${PREFIX}"
+    echo "TARGET=${TARGET}"
+    echo "BINUTILS=${BINUTILS_VERSION}"
+    echo "GCC=${GCC_VERSION}"
+    echo "SRC_DIR=${SRC_DIR}"
+    echo "JOBS=${JOBS}"
 
-	check_host_deps
-	mkdir -p "$PREFIX" "$SRC_DIR"
-	cd "$SRC_DIR"
+    check_host_deps
+    mkdir -p "$PREFIX" "$SRC_DIR"
+    cd "$SRC_DIR"
 
-	download "$BINUTILS_URL" "$SRC_DIR/$BINUTILS_TAR"
-	download "$GCC_URL" "$SRC_DIR/$GCC_TAR"
+    download "$BINUTILS_URL" "$SRC_DIR/$BINUTILS_TAR"
+    download "$GCC_URL" "$SRC_DIR/$GCC_TAR"
 
-	extract "$SRC_DIR/$BINUTILS_TAR" "$SRC_DIR/binutils-${BINUTILS_VERSION}"
-	extract "$SRC_DIR/$GCC_TAR" "$SRC_DIR/gcc-${GCC_VERSION}"
+    extract "$SRC_DIR/$BINUTILS_TAR" "$SRC_DIR/binutils-${BINUTILS_VERSION}"
+    extract "$SRC_DIR/$GCC_TAR" "$SRC_DIR/gcc-${GCC_VERSION}"
 
-	build_binutils
-	build_gcc
-	verify
+    build_binutils
+    build_gcc
+    verify
 
-	cat <<EOF
+    cat <<EOF
 
 Add this to your ~/.zshrc:
 
