@@ -1,16 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   keyboard.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sam0verfl0w <stales@student.42angouleme.f  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/26 19:14:11 by sam0verfl0w       #+#    #+#             */
-/*   Updated: 2026/07/26 19:20:24 by sam0verfl0w      ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "../inc/kernel.h"
+#include "kernel.h"
 
 /* Scan Code Set 1 — index = scancode make (0x00..0x3A) */
 static const char scancode_ascii[128] = {
@@ -29,23 +17,20 @@ static const char scancode_ascii_shift[128] = {
 	0,    '*', 0,   ' '
 };
 
-static bool_t shift_pressed = FALSE;
+static bool_t   shift_pressed = FALSE;
 
-bool_t poll_keyboard(void)
-{
+bool_t  poll_keyboard(void) {
 	/* bit 0 of status port 0x64 = Output Buffer Full */
 	return (inb(0x64) & 0x1);
 }
 
-u8_t keyboard_read_scancode(void)
-{
+u8_t    keyboard_read_scancode(void) {
 	while (!poll_keyboard())
 		;
 	return (inb(0x60));
 }
 
-char scancode_to_ascii(u8_t sc)
-{
+char    scancode_to_ascii(u8_t sc) {
 	if (sc >= 128)
 		return (0);
 	if (shift_pressed)
@@ -53,17 +38,16 @@ char scancode_to_ascii(u8_t sc)
 	return (scancode_ascii[sc]);
 }
 
-void keyboard_handle(void)
-{
-	u8_t sc = 0;
-	char c = 0;
+void    keyboard_handle(void) {
+	u8_t    sc = 0;
+	char    c = 0;
 
 	if (!poll_keyboard())
 		return;
 
 	sc = inb(0x60);
 
-	/* Break code (touche relâchée) : bit 7 à 1 */
+	/* Break code: bit 7 à 1 */
 	if (sc & 0x80) {
 		sc &= 0x7F;
 		if (sc == 0x2A || sc == 0x36)
@@ -71,7 +55,7 @@ void keyboard_handle(void)
 		return;
 	}
 
-	/* Make codes Shift gauche / droite */
+	/* Make codes Shift left / right */
 	if (sc == 0x2A || sc == 0x36) {
 		shift_pressed = TRUE;
 		return;
