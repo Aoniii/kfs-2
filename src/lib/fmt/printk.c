@@ -1,4 +1,5 @@
-#include "kernel.h"
+#include "vga.h"
+#include "put.h"
 #include <stdarg.h>
 
 int printk(const char *format, ...) {

@@ -1,4 +1,5 @@
-#include "kernel.h"
+#include "io.h"
+#include "vga.h"
 
 u16_t   get_cursor_pos(void) {
 	u16_t   pos = 0;

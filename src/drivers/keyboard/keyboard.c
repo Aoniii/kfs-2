@@ -1,4 +1,6 @@
-#include "kernel.h"
+#include "io.h"
+#include "types.h"
+#include "vga.h"
 
 /* Scan Code Set 1 — index = scancode make (0x00..0x3A) */
 static const char scancode_ascii[128] = {
