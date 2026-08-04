@@ -1,8 +1,11 @@
 /build
 /isodir
 /i686-elf
+
 *.o
 *.bin
 *.iso
 !kfs.iso
+
 /compile_commands.json
+/.cache
