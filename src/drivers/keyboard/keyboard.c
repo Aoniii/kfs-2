@@ -1,8 +1,9 @@
+#include "keyboard.h"
 #include "io.h"
 #include "types.h"
 #include "vga.h"
 
-/* Scan Code Set 1 — index = scancode make (0x00..0x3A) */
+/* Scan Code Set 1 - index = scancode make (0x00..0x3A) */
 static const char scancode_ascii[128] = {
 	0,    27,  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
 	'\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
@@ -49,7 +50,7 @@ void    keyboard_handle(void) {
 
 	sc = inb(0x60);
 
-	/* Break code: bit 7 à 1 */
+	/* Break code: bit 7 to 1 */
 	if (sc & 0x80) {
 		sc &= 0x7F;
 		if (sc == 0x2A || sc == 0x36)
@@ -63,7 +64,7 @@ void    keyboard_handle(void) {
 		return;
 	}
 
-	/* F1 / F2 / F3 → switch TTY 0 / 1 / 2 */
+	/* F1 / F2 / F3 -> switch TTY 0 / 1 / 2 */
 	if (sc == 0x3B) {
 		tty_switch(0);
 		return;

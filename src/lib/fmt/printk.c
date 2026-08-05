@@ -1,3 +1,4 @@
+#include "fmt.h"
 #include "vga.h"
 #include "put.h"
 #include <stdarg.h>

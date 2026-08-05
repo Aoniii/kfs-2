@@ -1,3 +1,4 @@
+#include "cursor.h"
 #include "io.h"
 #include "vga.h"
 

@@ -1,5 +1,5 @@
 /* Private header of the VGA/TTY driver.
-   NOT part of the public API — lives in the module directory, never in
+   NOT part of the public API - lives in the module directory, never in
    include/. Only the driver's own .c files include it. It exposes the
    shared state and helpers that the split translation units need. */
 #ifndef KFS_VGA_INTERNAL_H

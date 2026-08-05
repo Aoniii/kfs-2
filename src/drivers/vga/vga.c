@@ -1,6 +1,6 @@
 #include "vga_internal.h"
 
-/* Shared VGA/TTY state (external linkage — declared in vga_internal.h). */
+/* Shared VGA/TTY state (external linkage - declared in vga_internal.h). */
 tty_t   vga_ttys[TTY_COUNT];
 size_t  vga_current = 0;
 u16_t   *vga_mem = (u16_t *)VGA_MEMORY;
