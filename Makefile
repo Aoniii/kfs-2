@@ -1,5 +1,5 @@
 # ============================================================================
-#  KFS-1 - top-level Makefile
+#  KFS-2 - top-level Makefile
 #
 #  This file stays intentionally small: it only wires the pieces together and
 #  declares the high-level targets. The real logic is split across:
