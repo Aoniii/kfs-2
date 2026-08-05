@@ -12,7 +12,7 @@
 #
 # Supported distros: Debian/Ubuntu (apt), Fedora/RHEL (dnf), Arch (pacman).
 #
-# Note: nasm is intentionally NOT installed — boot.s is assembled with
+# Note: nasm is intentionally NOT installed - boot.s is assembled with
 # i686-elf-gcc (GAS/intel syntax), not nasm.
 
 set -euo pipefail

@@ -30,9 +30,9 @@ $(KERNEL): $(OBJS)
 # --- Build the bootable ISO -------------------------------------------------
 $(ISO): $(KERNEL) $(GRUB_CFG)
 	@command -v grub-mkrescue >/dev/null 2>&1 || { \
-		echo "error: grub-mkrescue not found — run: sudo ./scripts/install-deps.sh"; exit 1; }
+		echo "error: grub-mkrescue not found - run: sudo ./scripts/install-deps.sh"; exit 1; }
 	@command -v xorriso >/dev/null 2>&1 || { \
-		echo "error: xorriso not found — run: sudo ./scripts/install-deps.sh"; exit 1; }
+		echo "error: xorriso not found - run: sudo ./scripts/install-deps.sh"; exit 1; }
 	mkdir -p $(ISO_DIR)/boot/grub
 	cp $(KERNEL) $(ISO_DIR)/boot/$(KERNEL)
 	cp $(GRUB_CFG) $(ISO_DIR)/boot/grub/grub.cfg

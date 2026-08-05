@@ -36,7 +36,7 @@ SRCS        :=
 # --- Assembler flags (boot.s, GAS/intel syntax via gcc) ---------------------
 ASFLAGS     := -nostartfiles -nostdlib -Os
 
-# --- C flags — freestanding kernel ------------------------------------------
+# --- C flags - freestanding kernel ------------------------------------------
 #   -ffreestanding / -nostdlib / -nodefaultlibs : no host libc
 #   -fno-builtin / -fno-stack-protector         : sujet 42 flags
 #   -masm=intel                                 : match our inline asm style

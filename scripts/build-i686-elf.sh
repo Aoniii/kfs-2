@@ -182,7 +182,7 @@ EOF
     file "$tmp/test.o"
     rm -rf "$tmp"
 
-    log "OK — toolchain ready in ${PREFIX}"
+    log "OK - toolchain ready in ${PREFIX}"
 }
 
 main() {
