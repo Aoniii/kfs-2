@@ -1,5 +1,5 @@
 # ============================================================================
-#  mk/toolchain.mk — verify the i686-elf cross-compiler is available.
+#  mk/toolchain.mk - verify the i686-elf cross-compiler is available.
 # ============================================================================
 
 .PHONY: check-toolchain

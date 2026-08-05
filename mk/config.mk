@@ -1,5 +1,5 @@
 # ============================================================================
-#  mk/config.mk — toolchain, paths and build flags.
+#  mk/config.mk - toolchain, paths and build flags.
 #  Edit this file to tune WHAT and HOW things are built.
 # ============================================================================
 

@@ -43,7 +43,7 @@ export PREFIX TARGET
 # discouraged. Use install-deps.sh (with sudo) for the *system* packages,
 # but run THIS script as your normal user.
 if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
-    die "do not run this script as root — it installs into a user prefix:
+    die "do not run this script as root - it installs into a user prefix:
        $PREFIX
      Run it as your normal user. If the prefix needs root to be created,
      create and own it first, then rerun without sudo:
@@ -52,7 +52,7 @@ fi
 
 need_cmd() {
     command -v "$1" >/dev/null 2>&1 ||
-        die "missing command: $1 — install host tools first: sudo ./scripts/install-deps.sh"
+        die "missing command: $1 - install host tools first: sudo ./scripts/install-deps.sh"
 }
 
 check_host_deps() {
@@ -65,7 +65,7 @@ check_host_deps() {
     done
 
     if ! command -v makeinfo >/dev/null 2>&1; then
-        warn "makeinfo not found — disabling documentation build"
+        warn "makeinfo not found - disabling documentation build"
         export MAKEINFO=true
     fi
 }
@@ -156,7 +156,7 @@ build_gcc() {
         --disable-libatomic \
         MAKEINFO="${MAKEINFO:-makeinfo}"
 
-    log "Building gcc (-j${JOBS}) — this takes a while"
+    log "Building gcc (-j${JOBS}) - this takes a while"
     make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}" all-gcc
     make -j"${JOBS}" MAKEINFO="${MAKEINFO:-makeinfo}" all-target-libgcc
     make install-gcc MAKEINFO="${MAKEINFO:-makeinfo}"

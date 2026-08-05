@@ -121,7 +121,7 @@ fi
 check qemu-system-i386
 
 if [[ "$missing" -ne 0 ]]; then
-    warn "some tools are missing — check the package names for your distro"
+    warn "some tools are missing - check the package names for your distro"
 fi
 
 cat <<'EOF'

@@ -1,5 +1,5 @@
 # ============================================================================
-#  mk/rules.mk — derived variables + build / link / iso rules.
+#  mk/rules.mk - derived variables + build / link / iso rules.
 #  Included AFTER every module.mk so that SRCS is complete.
 # ============================================================================
 

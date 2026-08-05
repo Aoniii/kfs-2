@@ -1,5 +1,5 @@
 # ============================================================================
-#  KFS-1 — top-level Makefile
+#  KFS-1 - top-level Makefile
 #
 #  This file stays intentionally small: it only wires the pieces together and
 #  declares the high-level targets. The real logic is split across:
@@ -12,10 +12,10 @@
 #  No wildcards: every source is listed explicitly in its module.mk.
 # ============================================================================
 
-# 1. Config first — defines SRC_DIR, flags, and initializes SRCS.
+# 1. Config first - defines SRC_DIR, flags, and initializes SRCS.
 include mk/config.mk
 
-# 2. Source fragments — one per module. Each appends to SRCS.
+# 2. Source fragments - one per module. Each appends to SRCS.
 #    Add a line here when you create a new module.
 include $(SRC_DIR)/boot/module.mk
 include $(SRC_DIR)/kernel/module.mk
