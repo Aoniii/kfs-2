@@ -18,11 +18,12 @@ include mk/config.mk
 # 2. Source fragments - one per module. Each appends to SRCS.
 #    Add a line here when you create a new module.
 include $(SRC_DIR)/boot/module.mk
-include $(SRC_DIR)/kernel/module.mk
-include $(SRC_DIR)/lib/module.mk
 include $(SRC_DIR)/drivers/vga/module.mk
 include $(SRC_DIR)/drivers/cursor/module.mk
 include $(SRC_DIR)/drivers/keyboard/module.mk
+include $(SRC_DIR)/gdt/module.mk
+include $(SRC_DIR)/kernel/module.mk
+include $(SRC_DIR)/lib/module.mk
 
 # 3. Rules + toolchain check (need SRCS fully populated first).
 include mk/rules.mk
