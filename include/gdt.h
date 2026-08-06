@@ -37,6 +37,9 @@ typedef struct {
 /* Build the GDT at GDT_ADDRESS and load it (called early from kernel_main). */
 void    gdt_init(void);
 
+/* Print the current GDTR (base/limit) and segment registers, for debugging. */
+void    gdt_debug(void);
+
 /* ASM routine (src/gdt/gdt_flush.s): lgdt + reload segment registers.
    Takes the address of the gdt_ptr_t to load. */
 extern void gdt_flush(u32_t gdt_ptr);

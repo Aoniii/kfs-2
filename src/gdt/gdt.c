@@ -1,9 +1,5 @@
 #include "gdt.h"
 
-/* The GDT itself lives at the fixed address required by the subject (0x800),
-   so we just treat that address as our array of descriptors. */
-static gdt_entry_t  *gdt = (gdt_entry_t *)GDT_ADDRESS;
-
 /* The value handed to `lgdt` (its address is passed to gdt_flush). */
 static gdt_ptr_t    gdt_ptr;
 
@@ -23,7 +19,7 @@ static gdt_ptr_t    gdt_ptr;
  *   DB (bit6) 32-bit segment                 -> 1
  *   => 0xCF gives a 4 GiB flat segment
  */
-static void gdt_set_entry(int i, u32_t base, u32_t limit, u8_t access, u8_t gran) {
+static void gdt_set_entry(gdt_entry_t *gdt, int i, u32_t base, u32_t limit, u8_t access, u8_t gran) {
 	gdt[i].limit_low    = (limit & 0xFFFF);
 	gdt[i].base_low     = (base & 0xFFFF);
 	gdt[i].base_mid     = (base >> 16) & 0xFF;
@@ -33,14 +29,24 @@ static void gdt_set_entry(int i, u32_t base, u32_t limit, u8_t access, u8_t gran
 }
 
 void    gdt_init(void) {
-	/*          idx     base    limit   access  gran    */
-	gdt_set_entry(0,    0,  0,          0,      0);     /* null             */
-	gdt_set_entry(1,    0,  0xFFFFFFFF, 0x9A,   0xCF);  /* kernel code      */
-	gdt_set_entry(2,    0,  0xFFFFFFFF, 0x92,   0xCF);  /* kernel data      */
-	gdt_set_entry(3,    0,  0xFFFFFFFF, 0x92,   0xCF);  /* kernel stack     */
-	gdt_set_entry(4,    0,  0xFFFFFFFF, 0xFA,   0xCF);  /* user code        */
-	gdt_set_entry(5,    0,  0xFFFFFFFF, 0xF2,   0xCF);  /* user data        */
-	gdt_set_entry(6,    0,  0xFFFFFFFF, 0xF2,   0xCF);  /* user stack       */
+    /* The GDT lives at the fixed address required by the subject (0x800). */
+	gdt_entry_t *gdt = (gdt_entry_t *)GDT_ADDRESS;
+
+	/*
+	 * Optimization barrier: hide the constant address from the compiler so
+	 * its -Warray-bounds analysis doesn't mistake 0x800 for a near-null
+	 * object (false positive on a fixed low address).
+	 */
+	__asm__ volatile ("" : "+r"(gdt));
+
+	/*              idx     base    limit   access  gran    */
+	gdt_set_entry(gdt,  0,  0,  0,          0,      0);     /* null             */
+	gdt_set_entry(gdt,  1,  0,  0xFFFFFFFF, 0x9A,   0xCF);  /* kernel code      */
+	gdt_set_entry(gdt,  2,  0,  0xFFFFFFFF, 0x92,   0xCF);  /* kernel data      */
+	gdt_set_entry(gdt,  3,  0,  0xFFFFFFFF, 0x92,   0xCF);  /* kernel stack     */
+	gdt_set_entry(gdt,  4,  0,  0xFFFFFFFF, 0xFA,   0xCF);  /* user code        */
+	gdt_set_entry(gdt,  5,  0,  0xFFFFFFFF, 0xF2,   0xCF);  /* user data        */
+	gdt_set_entry(gdt,  6,  0,  0xFFFFFFFF, 0xF2,   0xCF);  /* user stack       */
 
 	gdt_ptr.limit = (sizeof(gdt_entry_t) * GDT_ENTRIES) - 1;
 	gdt_ptr.base  = GDT_ADDRESS;
@@ -48,4 +54,3 @@ void    gdt_init(void) {
 	/* Load the GDTR and reload the segment registers (asm). */
 	gdt_flush((u32_t)&gdt_ptr);
 }
-

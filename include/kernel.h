@@ -20,6 +20,7 @@
 #include "vga.h"
 #include "cursor.h"
 #include "keyboard.h"
+#include "gdt.h"
 
 void    kernel_main(void);
 
