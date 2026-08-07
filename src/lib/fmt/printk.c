@@ -1,4 +1,5 @@
 #include "fmt.h"
+#include "types.h"
 #include "vga.h"
 #include "put.h"
 #include <stdarg.h>
@@ -36,7 +37,7 @@ int printk(const char *format, ...) {
 
 			case 'x':
 				x = (u32_t)va_arg(list, u32_t);
-				puthex(x, TRUE);
+				puthex(x, TRUE, TRUE);
 				format++;
 				break;
 
@@ -48,7 +49,7 @@ int printk(const char *format, ...) {
 
 			case 'p':
 				p = va_arg(list, ptr_t);
-				putptr(p);
+				putptr(p, TRUE);
 				format++;
 				break;
 

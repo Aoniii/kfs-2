@@ -1,6 +1,7 @@
 # Freestanding mini-libc - one function per file.
 SRCS += $(SRC_DIR)/lib/fmt/printk.c
 
+SRCS += $(SRC_DIR)/lib/put/putbyte.c
 SRCS += $(SRC_DIR)/lib/put/putchar.c
 SRCS += $(SRC_DIR)/lib/put/puthex.c
 SRCS += $(SRC_DIR)/lib/put/putnbr.c

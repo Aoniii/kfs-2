@@ -4,10 +4,11 @@
 
 #include "types.h"
 
+void    putbyte(u8_t b, bool_t lower);
 void    putchar(char c);
-void    puthex(u32_t n, bool_t lower);
+void    puthex(u32_t n, bool_t lower, bool_t prefix);
 void    putnbr(int n);
-void    putptr(ptr_t p);
+void    putptr(ptr_t p, bool_t prefix);
 void    putstr(const char *s);
 
 #endif /* KFS_PUT_H */
