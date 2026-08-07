@@ -1,6 +1,6 @@
+#include "put.h"
 #include "vga_internal.h"
 #include "cursor.h"
-#include "fmt.h"
 
 void    terminal_init(void) {
 	static const vga_color_t fg[TTY_COUNT] = {
@@ -30,7 +30,7 @@ void    terminal_init(void) {
 	for (t = 0; t < TTY_COUNT; t++) {
 		vga_current = t;
 		tty_flush(t);
-		printk("TTY %d - F1/F2/F3 pour changer d'ecran\n", (int)t);
+        putstr("kfs>");
 	}
 
 	vga_current = 0;

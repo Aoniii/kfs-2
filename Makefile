@@ -25,6 +25,7 @@ include $(SRC_DIR)/drivers/keyboard/module.mk
 include $(SRC_DIR)/gdt/module.mk
 include $(SRC_DIR)/kernel/module.mk
 include $(SRC_DIR)/lib/module.mk
+include $(SRC_DIR)/shell/module.mk
 
 # 3. Rules + toolchain check (need SRCS fully populated first).
 include mk/rules.mk

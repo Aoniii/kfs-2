@@ -2,6 +2,7 @@
 #include "put.h"
 #include "types.h"
 
+/* Dump 256 bytes of the current stack as hex + ASCII, for low-level debugging. */
 void    stack_dump(void) {
     u8_t    *esp;
 

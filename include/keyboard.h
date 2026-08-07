@@ -6,7 +6,7 @@
 
 bool_t  poll_keyboard(void);
 u8_t    keyboard_read_scancode(void);
-char    scancode_to_ascii(u8_t sc);
-void    keyboard_handle(void);
+char    scancode_to_ascii(u8_t sc, bool_t shift_pressed);
+char    keyboard_getchar(void);
 
 #endif /* KFS_KEYBOARD_H */
