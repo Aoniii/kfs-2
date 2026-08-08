@@ -8,7 +8,7 @@ char    keyboard_getchar(void) {
 	u8_t    sc;
 	char    c;
 
-	while (1) {
+	for (;;) {
 		sc = keyboard_read_scancode();      /* waits for a key press */
 
         /* Break code (key released): Shift key, continue waiting */

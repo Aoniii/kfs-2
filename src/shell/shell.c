@@ -44,7 +44,7 @@ void    shell_run(void) {
 	}
 	tty_switch(0);
 
-    while (1) {
+    for (;;) {
         char c = keyboard_getchar();
         feed(tty_get_current(), c);
     }

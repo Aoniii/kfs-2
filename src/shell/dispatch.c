@@ -6,6 +6,8 @@
 /* List of commands, with the strings associated with each command's function */
 static const t_cmd  cmd_list[] = {
     {"stack", &stack_dump},
+    {"reboot", &reboot},
+    {"halt", &halt},
     {NULL, NULL}    /* sentinel */
 };
 
@@ -19,7 +21,7 @@ void    dispatch(const char *cmd) {
     i = 0;
     while (cmd_list[i].cmd) {
         if (strcmp(cmd, cmd_list[i].cmd) == 0) {
-            cmd_list->f();
+            cmd_list[i].f();
             break ;
         }
         i++;

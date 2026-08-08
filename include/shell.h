@@ -15,4 +15,8 @@ void    shell_run(void);
 /* Method for reading the list of commands and executing the associated functions */
 void    dispatch(const char *cmd);
 
+/* commands */
+void    reboot(void);
+void    halt(void);
+
 #endif /* KFS_SHELL_H */
