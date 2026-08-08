@@ -10,6 +10,7 @@ static const t_cmd  cmd_list[] = {
     {"reboot", &reboot},
     {"halt", &halt},
     {"clear", &terminal_clear},
+    {"gdt", &gdt_debug},
     {NULL, NULL}    /* sentinel */
 };
 
