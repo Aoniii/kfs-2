@@ -2,12 +2,9 @@
 #ifndef KFS_SHELL_H
 #define KFS_SHELL_H
 
-#include "types.h"
+#define LINE_MAX 128
 
-/* Read one line into buffer (bounded editing). Returns its length. */
-size_t  read_line(char *buffer, size_t size);
-
-/* Run the interactive shell loop: prompt, read a line, dispatch commands. */
+/* Run the interactive shell loop: per-TTY prompt, read input, dispatch. */
 void    shell_run(void);
 
 #endif /* KFS_SHELL_H */
