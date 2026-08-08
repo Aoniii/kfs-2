@@ -11,10 +11,12 @@ static void prompt(void) {
     printk("kfs (%d)>", tty_get_current());
 }
 
+/* Feed one character into the CURRENT tty's input line. */
 static void feed(size_t tty, char c) {
     if (c == '\n') {
         terminal_putchar('\n');
         line[tty][line_len[tty]] = '\0';
+        dispatch(line[tty]);
         line_len[tty] = 0;
         prompt();
     } else if (c == '\b') {
