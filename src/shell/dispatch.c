@@ -11,6 +11,7 @@ static const t_cmd  cmd_list[] = {
     {"halt", &halt},
     {"clear", &terminal_clear},
     {"gdt", &gdt_debug},
+    {"regs", &dump_registers},
     {NULL, NULL}    /* sentinel */
 };
 

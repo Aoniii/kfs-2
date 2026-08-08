@@ -7,4 +7,7 @@ void    stack_dump(void);
 /* Print the current GDTR (base/limit) and segment registers. */
 void    gdt_debug(void);
 
+/* Dump the general-purpose registers (snapshot at the moment of reading). */
+void    dump_registers(void);
+
 #endif /* KFS_DEBUG_H */
