@@ -2,12 +2,14 @@
 #include "shell.h"
 #include "types.h"
 #include "str.h"
+#include "vga.h"
 
 /* List of commands, with the strings associated with each command's function */
 static const t_cmd  cmd_list[] = {
     {"stack", &stack_dump},
     {"reboot", &reboot},
     {"halt", &halt},
+    {"clear", &terminal_clear},
     {NULL, NULL}    /* sentinel */
 };
 
